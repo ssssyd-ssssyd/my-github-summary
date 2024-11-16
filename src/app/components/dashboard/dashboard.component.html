@@ -1,0 +1,95 @@
+<div class="dashboard-container">
+  <h1 class="my-github-summary">MY GITHUB SUMMARY</h1>
+  <div class="header-buttons">
+    <tds-button
+      type="button"
+      variant="secondary"
+      size="lg"
+      text="Filter"
+      class="filter-btn"
+      ><tds-icon slot="icon" size="20px" name="doner"></tds-icon
+    ></tds-button>
+    <tds-button
+      type="button"
+      variant="secondary"
+      size="lg"
+      text="Upload fuel data"
+      class="upload-btn"
+      ><tds-icon slot="icon" size="20px" name="upload"></tds-icon
+    ></tds-button>
+    <tds-button
+      type="button"
+      variant="primary"
+      size="lg"
+      text="Report"
+      class="report-btn"
+      ><tds-icon slot="icon" size="20px" name="upload"></tds-icon
+    ></tds-button>
+  </div>
+
+  <h3>Summary</h3>
+  <div class="summary-section">
+    <tds-block class="summary-card">
+      <div>Number of projects</div>
+      <h1>{{ numberOfProjects }}</h1>
+    </tds-block>
+    <tds-block class="summary-card">
+      <div>Total commits this year</div>
+      <h1>21,212</h1>
+    </tds-block>
+    <tds-block class="summary-card">
+      <div>Followers</div>
+      <h1>{{ followers }}</h1>
+    </tds-block>
+    <tds-block class="summary-card">
+      <div>Following</div>
+      <h1>{{ following }}</h1>
+    </tds-block>
+  </div>
+
+  <!-- Commit Count Section -->
+  <section class="commit-section">
+    <h2>Commit count <span>↗</span></h2>
+    <div class="commit-chart">
+      <div class="commit-bar">
+        <span>Jan</span>
+        <div class="bar" style="width: 20%"></div>
+      </div>
+      <div class="commit-bar">
+        <span>Feb</span>
+        <div class="bar" style="width: 50%"></div>
+      </div>
+      <div class="commit-bar">
+        <span>Mar</span>
+        <div class="bar" style="width: 80%"></div>
+        <span class="count">30</span>
+      </div>
+      <div class="commit-bar">
+        <span>Apr</span>
+        <div class="bar" style="width: 40%"></div>
+      </div>
+      <div class="commit-bar">
+        <span>May</span>
+        <div class="bar" style="width: 60%"></div>
+      </div>
+      <div class="commit-bar">
+        <span>Jun</span>
+        <div class="bar" style="width: 70%"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Programming Languages Section -->
+  <section class="language-section">
+    <h2>Programming languages <span>↗</span></h2>
+    <div class="language-chart">
+      <div class="donut-chart">
+        <!-- Include chart using a library like Chart.js or any other -->
+      </div>
+      <ul class="language-legend">
+        <li><span class="color javascript"></span> 65% Javascript</li>
+        <li><span class="color html"></span> 35% HTML</li>
+      </ul>
+    </div>
+  </section>
+</div>

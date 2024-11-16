@@ -1,0 +1,51 @@
+<div class="auth-container">
+  <!-- GitHub Logo -->
+  <img
+    src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
+    alt="GitHub Logo"
+    class="github-logo"
+  />
+
+  <!-- Title -->
+  <h1>GitHub</h1>
+
+  <!-- Description -->
+  <p class="description">
+    In order to create an integration with GitHub, please provide personal
+    access token.
+  </p>
+
+  <tds-text-field
+    class="access-token-textField"
+    [formControl]="accessToken"
+    type="text"
+    ngDefaultControl
+    helper="Personal Access Token"
+    placeholder="Type here..."
+    size="lg"
+  ></tds-text-field>
+
+  <!-- Test Connection Button -->
+  <tds-button
+    class="test-connection-button"
+    type="button"
+    variant="primary"
+    size="sm"
+    text="Test connection"
+    (click)="testConnectionClicked()"
+  ></tds-button>
+
+  @if(showToast()){<tds-toast
+    [variant]="toastVariant()"
+    [header]="toastVariant() === 'success' ? 'Success' : 'Error'"
+    [subheader]="
+      toastVariant() === 'success'
+        ? 'Logged in successfully as ' + userName()
+        : 'There was an error logging in'
+    "
+    closable="true"
+    (tdsClose)="closeToast()"
+    class="bottom-toast"
+  ></tds-toast
+  >}
+</div>

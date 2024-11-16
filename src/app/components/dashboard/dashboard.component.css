@@ -1,0 +1,36 @@
+.dashboard-container {
+  color: var(--tds-blue);
+  padding: var(--tds-spacing-element-32);
+}
+.my-github-summary {
+  margin-top: 0;
+  margin-bottom: var(--tds-spacing-layout-96);
+  font-size: 96px;
+  width: 50%;
+}
+
+.header-buttons {
+  display: flex;
+}
+
+.filter-btn {
+  margin-right: auto;
+}
+
+.upload-btn,
+.report-btn {
+  margin-left: 1rem;
+}
+
+.summary-section {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--tds-spacing-element-8);
+  margin-top: var(--tds-spacing-element-8);
+}
+
+.summary-card h1 {
+  margin-top: var(--tds-spacing-element-48);
+  margin-bottom: auto;
+  font-size: 96px;
+}
