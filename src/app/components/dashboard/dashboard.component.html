@@ -39,7 +39,7 @@
   <div class="summary-section">
     <tds-block class="summary-card">
       <div>Number of projects</div>
-      <h1>{{ numberOfProjects }}</h1>
+      <h1>{{ numberOfProjects() }}</h1>
     </tds-block>
     <tds-block class="summary-card">
       <div>Total commits this year</div>
@@ -47,11 +47,11 @@
     </tds-block>
     <tds-block class="summary-card">
       <div>Followers</div>
-      <h1>{{ followers }}</h1>
+      <h1>{{ followers() }}</h1>
     </tds-block>
     <tds-block class="summary-card">
       <div>Following</div>
-      <h1>{{ following }}</h1>
+      <h1>{{ following() }}</h1>
     </tds-block>
   </div>
 
@@ -87,7 +87,15 @@
     </div>
   </section> -->
 
-  <div class="languagePieChart">
-    <canvas id="languagePieChart"></canvas>
+  <div class="chart-container">
+    <div class="bar-chart-container">
+      <h3>Commit count</h3>
+      <canvas id="commitBarChart"></canvas>
+    </div>
+
+    <div class="pie-chart-container">
+      <h3>Programming languages</h3>
+      <canvas id="languagePieChart"></canvas>
+    </div>
   </div>
 </div>

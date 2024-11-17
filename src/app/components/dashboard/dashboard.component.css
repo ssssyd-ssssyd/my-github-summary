@@ -40,3 +40,40 @@
   width: 33%;
   height: 33%;
 }
+
+.chart-container {
+  display: flex;
+  margin-top: var(--tds-spacing-element-24);
+  height: 400px;
+}
+
+.bar-chart-container {
+  flex: 3;
+  /* Adds spacing between the containers */
+  padding: 10px;
+  background-color: #f9f9f9; /* Optional: Adds a light background */
+  border-radius: 10px; /* Optional: Rounds the corners */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Optional: Adds a subtle shadow */
+}
+.pie-chart-container {
+  flex: 1; /* Makes both charts take equal space */
+  margin-left: 20px;
+  /* padding: 10px; */
+  background-color: #f9f9f9; /* Optional: Adds a light background */
+  border-radius: 10px; /* Optional: Rounds the corners */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Optional: Adds a subtle shadow */
+}
+
+.bar-chart-container h3,
+.pie-chart-container h3 {
+  text-align: center;
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+canvas {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%; /* Ensures the canvas resizes within its container */
+}
