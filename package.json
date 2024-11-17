@@ -23,6 +23,7 @@
     "@scania/tegel-angular": "^1.19.0",
     "@scania/tegel-angular-17": "^1.19.0",
     "@scania/theme-light": "^4.4.2",
+    "chart.js": "^4.4.6",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.3"
@@ -31,6 +32,7 @@
     "@angular-devkit/build-angular": "^18.0.6",
     "@angular/cli": "^18.0.6",
     "@angular/compiler-cli": "^18.0.0",
+    "@types/chart.js": "^2.9.41",
     "@types/jasmine": "~5.1.0",
     "@webcomponents/webcomponentsjs": "^2.8.0",
     "jasmine-core": "~5.1.0",

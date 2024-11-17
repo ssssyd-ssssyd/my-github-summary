@@ -34,3 +34,8 @@
   margin-bottom: auto;
   font-size: 96px;
 }
+
+.languagePieChart {
+  width: 33%;
+  height: 33%;
+}

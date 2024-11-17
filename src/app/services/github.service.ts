@@ -25,4 +25,17 @@ export class GithubService {
     const url = `${this.apiUrl}/repos/${owner}/${repo}/stats/commit_activity`;
     return this.http.get<any[]>(url);
   }
+
+  fetchProgrammingLanguages(owner: string, repo: string): Observable<any> {
+    const url = `${this.apiUrl}/repos/${owner}/${repo}/languages`;
+    return this.http.get<any[]>(url);
+  }
+
+  fetchListOfCommits(owner: string, repo: string): Observable<any[]> {
+    console.log('owner', owner);
+    console.log('repo', repo);
+
+    const url = `${this.apiUrl}/repos/${owner}/${repo}/commits`;
+    return this.http.get<any[]>(url);
+  }
 }

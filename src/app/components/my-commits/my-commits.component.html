@@ -1,0 +1,53 @@
+<div class="my-commits-container">
+  <h1 class="my-commits-header">My commits</h1>
+  <div class="repo-selector-container">
+    @if (!commitList) {
+
+    <tds-dropdown
+      id="repoDropdown"
+      label="Select Repository"
+      size="lg"
+      placeholder="Choose a repository"
+      name="repository"
+      open-direction="auto"
+      (tdsChange)="onRepoChange($event)"
+    >
+      @for (repo of repositories; track repo.id) {
+      <tds-dropdown-option [value]="repo.name">
+        {{ repo.name }}
+      </tds-dropdown-option>
+      }
+    </tds-dropdown>
+    } @else{
+
+    <tds-text-field type="text" size="lg" state="default" placeholder="Search">
+      <tds-icon slot="suffix" size="20px" name="search"></tds-icon>
+    </tds-text-field>
+
+    <div>
+      @if(commitList.length > 0){
+
+      <ul>
+        @for(commit of commitList; track commit){
+
+        <li>
+          <p>
+            <strong>{{ commit.commit.message }}</strong>
+          </p>
+          <p>Author: {{ commit.commit.author.name }}</p>
+          <p>Date: {{ commit.commit.author.date }}</p>
+        </li>
+        }
+      </ul>
+      }
+
+      <!-- No commits found -->
+      @if(commitList.length === 0){
+
+      <p>No commits found for this repository.</p>
+      }
+    </div>
+
+    }
+  </div>
+</div>
