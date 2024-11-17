@@ -10,5 +10,5 @@ import { TegelModule } from '@scania/tegel-angular-17';
   styleUrl: './app.component.css',
 })
 export class AppComponent {
-  title = 'GitHub_Insights_Dashboard';
+  // title = 'GitHub_Insights_Dashboard';
 }

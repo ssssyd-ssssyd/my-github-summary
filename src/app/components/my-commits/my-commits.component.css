@@ -1,0 +1,35 @@
+.my-commits-container {
+  margin: var(--tds-spacing-element-24);
+  color: var(--tds-blue);
+}
+.commit-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 15px;
+  padding: 10px 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.avatar-img {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  margin-right: var(--tds-spacing-element-8);
+}
+
+.my-commits-header {
+  margin-bottom: var(--tds-spacing-layout-96);
+  font-size: var(--tds-spacing-layout-96);
+  margin-top: 0;
+}
+
+.commit-info p {
+  color: #666;
+  margin-top: var(--tds-spacing-element-8);
+}
+
+.commit-search-field,
+.repo-dropdown {
+  display: block;
+  width: 20%;
+}

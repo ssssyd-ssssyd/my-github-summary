@@ -19,13 +19,13 @@ import { Router } from '@angular/router';
 })
 export class AuthenticationComponent {
   constructor(private githubService: GithubService, private router: Router) {}
-  public accessToken = new FormControl<string>('');
+  public accessTokenInput = new FormControl<string>('');
   public showToast = signal<boolean>(false);
   public userName = signal<string | null>(null);
   public toastVariant = signal<'success' | 'error' | null>(null);
 
   public testConnectionClicked(): void {
-    const token = this.accessToken.value as string;
+    const token = this.accessTokenInput.value as string;
     if (token) {
       this.githubService.authenticateUser(token).subscribe({
         next: (data: any) => {
@@ -46,7 +46,7 @@ export class AuthenticationComponent {
     } else {
       console.warn('Access token is required');
     }
-    this.accessToken.setValue('');
+    this.accessTokenInput.setValue('');
   }
 
   public closeToast(): void {

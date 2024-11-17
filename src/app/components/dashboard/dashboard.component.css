@@ -1,12 +1,13 @@
+.my-github-header {
+  margin-bottom: var(--tds-spacing-layout-96);
+  font-size: var(--tds-spacing-layout-96);
+  margin-top: 0;
+  width: 50%;
+}
+
 .dashboard-container {
   color: var(--tds-blue);
   padding: var(--tds-spacing-element-32);
-}
-.my-github-summary {
-  margin-top: 0;
-  margin-bottom: var(--tds-spacing-layout-96);
-  font-size: 96px;
-  width: 50%;
 }
 
 .header-buttons {

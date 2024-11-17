@@ -11,6 +11,14 @@
     ></tds-button>
     <tds-button
       type="button"
+      variant="primary"
+      size="lg"
+      text="My commits"
+      class="my-commits-btn"
+      (click)="onMyCommitsClicked()"
+    ></tds-button>
+    <tds-button
+      type="button"
       variant="secondary"
       size="lg"
       text="Upload fuel data"
@@ -78,14 +86,6 @@
       </div>
     </div>
   </section> -->
-  <tds-button
-    type="button"
-    variant="primary"
-    size="lg"
-    text="My commits"
-    class="my-commits-btn"
-    (click)="onMyCommitsClicked()"
-  ></tds-button>
 
   <div class="languagePieChart">
     <canvas id="languagePieChart"></canvas>

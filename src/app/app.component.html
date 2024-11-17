@@ -1,6 +1,28 @@
 <tds-header>
   <tds-header-title>GitHub Insights Dashboard</tds-header-title>
-
+  <tds-header-item slot="end">
+    <button>
+      <tds-icon name="search" size="20px"></tds-icon>
+    </button>
+  </tds-header-item>
+  <tds-header-item slot="end">
+    <button>
+      <tds-icon name="settings" size="20px"></tds-icon>
+    </button>
+  </tds-header-item>
+  <tds-header-launcher slot="end"></tds-header-launcher>
+  <tds-header-dropdown
+    slot="end"
+    placement="end"
+    no-dropdown-icon
+    class="demo-hide demo-lg-show"
+  >
+    <img
+      slot="icon"
+      src="https://www.svgrepo.com/show/384676/account-avatar-profile-user-6.svg"
+      alt="User menu."
+    />
+  </tds-header-dropdown>
   <tds-header-brand-symbol slot="end">
     <a
       aria-label="Scania - red gryphon on blue shield"

@@ -1,10 +1,10 @@
 <div class="my-commits-container">
   <h1 class="my-commits-header">My commits</h1>
   <div class="repo-selector-container">
-    @if (!commitList) {
+    @if (commitList().length===0) {
 
     <tds-dropdown
-      id="repoDropdown"
+      class="repo-dropdown"
       label="Select Repository"
       size="lg"
       placeholder="Choose a repository"
@@ -12,7 +12,7 @@
       open-direction="auto"
       (tdsChange)="onRepoChange($event)"
     >
-      @for (repo of repositories; track repo.id) {
+      @for (repo of repositories(); track repo.id) {
       <tds-dropdown-option [value]="repo.name">
         {{ repo.name }}
       </tds-dropdown-option>
@@ -20,32 +20,45 @@
     </tds-dropdown>
     } @else{
 
-    <tds-text-field type="text" size="lg" state="default" placeholder="Search">
+    <tds-text-field
+      type="text"
+      size="lg"
+      state="default"
+      [formControl]="commitFilterInput"
+      ngDefaultControl
+      placeholder="Search"
+      class="commit-search-field"
+    >
       <tds-icon slot="suffix" size="20px" name="search"></tds-icon>
     </tds-text-field>
-
     <div>
-      @if(commitList.length > 0){
+      @if(sortedGroupedCommits()){ @for (date of sortedDates(); track date) {
+      <div class="commit-day">
+        <h6>{{ formatDate(date) }}</h6>
 
-      <ul>
-        @for(commit of commitList; track commit){
-
-        <li>
-          <p>
+        @for (commit of sortedGroupedCommits()[date]; track commit) {
+        <ul class="commit-item">
+          <div class="commit-message">
+            <img
+              class="avatar-img"
+              src="https://www.svgrepo.com/show/170303/avatar.svg"
+              alt="profile photo"
+            />
+          </div>
+          <div class="commit-info">
             <strong>{{ commit.commit.message }}</strong>
-          </p>
-          <p>Author: {{ commit.commit.author.name }}</p>
-          <p>Date: {{ commit.commit.author.date }}</p>
-        </li>
+            <p>
+              {{
+                commit.commit.author.name +
+                  " authored " +
+                  formatRelativeTime(commit.commit.author.date)
+              }}
+            </p>
+          </div>
+        </ul>
         }
-      </ul>
-      }
-
-      <!-- No commits found -->
-      @if(commitList.length === 0){
-
-      <p>No commits found for this repository.</p>
-      }
+      </div>
+      } }
     </div>
 
     }

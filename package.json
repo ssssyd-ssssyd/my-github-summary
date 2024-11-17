@@ -24,6 +24,7 @@
     "@scania/tegel-angular-17": "^1.19.0",
     "@scania/theme-light": "^4.4.2",
     "chart.js": "^4.4.6",
+    "date-fns": "^4.1.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.3"
