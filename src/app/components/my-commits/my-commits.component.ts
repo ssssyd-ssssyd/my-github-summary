@@ -7,6 +7,7 @@ import {
 import { GithubService } from '../../services/github.service';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { formatDistanceToNow } from 'date-fns';
+import { take } from 'rxjs';
 
 @Component({
   selector: 'app-my-commits',
@@ -20,12 +21,11 @@ export class MyCommitsComponent implements OnInit {
   constructor(private githubService: GithubService) {}
   public commitFilterInput = new FormControl<string>('');
 
-  public repositories = signal<any[]>([]); // Signal for repositories
-  public userData = signal<any>(null); // Signal for user data
-  public commitList = signal<any[]>([]); // Signal for commit list
-  public sortedDates = signal<string[]>([]); // Signal for grouped commits
-  public sortedGroupedCommits = signal<{ [key: string]: any[] }>({}); // Signal for grouped commits
-  // public groupedCommitDates = signal<string[]>([]); // Signal for grouped dates
+  public repositories = signal<any[]>([]);
+  public userData = signal<any>(null);
+  public commitList = signal<any[]>([]);
+  public sortedDates = signal<string[]>([]);
+  public sortedGroupedCommits = signal<{ [key: string]: any[] }>({});
   ngOnInit(): void {
     this.repositories.set(history.state.repositories);
     this.userData.set(history.state.userData);
@@ -47,10 +47,8 @@ export class MyCommitsComponent implements OnInit {
     const today = new Date();
     const givenDate = new Date(dateString);
 
-    // Check if the date is today
     const isToday = today.toDateString() === givenDate.toDateString();
 
-    // If the date is today, prepend "Today"
     if (isToday) {
       return `Today, ${givenDate.toLocaleDateString('en-US', {
         month: 'short',
@@ -58,16 +56,20 @@ export class MyCommitsComponent implements OnInit {
       })}`;
     }
 
-    // Otherwise, format with full month name and day
     return givenDate.toLocaleDateString('en-US', {
       month: 'long',
       day: 'numeric',
     });
   }
 
+  public navigateToCommit(url: string): void {
+    window.open(url, '_blank');
+  }
+
   private fetchCommitsForRepo(repoName: string): void {
     this.githubService
       .fetchListOfCommits(this.userData().login, repoName)
+      .pipe(take(1))
       .subscribe({
         next: (commits) => {
           this.sortedGroupedCommits.set(
@@ -111,7 +113,7 @@ export class MyCommitsComponent implements OnInit {
       Object.keys(groupedCommits).sort((a, b) => {
         const dateA = Date.parse(a);
         const dateB = Date.parse(b);
-        return dateB - dateA; // Descending order
+        return dateB - dateA;
       })
     );
 
@@ -124,12 +126,19 @@ export class MyCommitsComponent implements OnInit {
   }
 
   private filterCommits(filterValue: string): void {
-    // Filter commits based on the commit message
-    const filtered = this.commitList().filter((commit) =>
-      commit.commit.message.toLowerCase().includes(filterValue.toLowerCase())
-    );
+    const lowerCaseFilter = filterValue.toLowerCase();
 
-    // Update grouped commits after filtering
+    const filtered = this.commitList().filter((commit) => {
+      const messageMatch = commit.commit.message
+        .toLowerCase()
+        .includes(lowerCaseFilter);
+
+      const formattedDate = this.formatDate(commit.commit.author.date);
+      const dateMatch = formattedDate.toLowerCase().includes(lowerCaseFilter);
+
+      return messageMatch || dateMatch;
+    });
+
     this.sortedGroupedCommits.set(this.groupAndSortCommitsByDate(filtered));
     console.log('Updated Grouped Commits:', this.sortedGroupedCommits());
   }

@@ -21,6 +21,11 @@
     placeholder="Type here..."
     size="lg"
   ></tds-text-field>
+  @if(formSubmitted() && accessTokenInput.errors?.['invalidTokenFormat']){
+  <div class="error">
+    Invalid token format. Please enter a valid GitHub Personal Access Token.
+  </div>
+  }
 
   <tds-button
     class="test-connection-button"
@@ -28,6 +33,7 @@
     variant="primary"
     size="sm"
     text="Test connection"
+    [disabled]="!accessTokenInput.value || !accessTokenInput.value.trim()"
     (click)="testConnectionClicked()"
   ></tds-button>
 </div>

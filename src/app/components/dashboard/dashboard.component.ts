@@ -1,6 +1,7 @@
 import {
   CUSTOM_ELEMENTS_SCHEMA,
   Component,
+  OnDestroy,
   OnInit,
   signal,
 } from '@angular/core';
@@ -8,6 +9,8 @@ import { GithubService } from '../../services/github.service';
 import Chart, { ChartData } from 'chart.js/auto';
 import { forkJoin } from 'rxjs';
 import { Router } from '@angular/router';
+import { ToastService } from '../../modules/shared/services/toast.service';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 @Component({
   selector: 'app-dashboard',
@@ -17,8 +20,12 @@ import { Router } from '@angular/router';
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
 })
-export class DashboardComponent implements OnInit {
-  constructor(private githubService: GithubService, private router: Router) {}
+export class DashboardComponent implements OnInit, OnDestroy {
+  constructor(
+    private githubService: GithubService,
+    private router: Router,
+    private toastService: ToastService
+  ) {}
   public numberOfProjects = signal<number>(0);
   public followers = signal<number>(0);
   public following = signal<number>(0);
@@ -56,18 +63,22 @@ export class DashboardComponent implements OnInit {
 
   public totalLanguages: { [key: string]: number } = {};
   public languagePercentages: { [key: string]: number } = {};
+  private autoRefreshInterval: any;
   private userData: any;
   private barChart: Chart | undefined;
   private pieChart: Chart | undefined;
   private repositories: any[] = [];
+
   ngOnInit(): void {
-    this.userData = history.state.userData;
-    this.numberOfProjects.set(this.userData.public_repos);
-    this.followers.set(this.userData.followers);
-    this.following.set(this.userData.following);
-    // console.log(this.userData);
-    // this.countCommits();
+    this.initializeUserData();
     this.fetchProgrammingLanguages();
+    this.startAutoRefresh();
+  }
+
+  ngOnDestroy(): void {
+    if (this.autoRefreshInterval) {
+      clearInterval(this.autoRefreshInterval);
+    }
   }
 
   public onMyCommitsClicked() {
@@ -76,53 +87,107 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  private countCommits(): void {
-    const repositories = this.repositories; // Retrieve the current repositories
-    const monthlyCommitCounts: { [key: string]: number } = {}; // Object to store commits per month
+  // private aggregateMonthlyCommits(): void {
+  //   const repositories = this.repositories;
+  //   const monthlyCommitCounts: { [key: string]: number } = {};
+  //   const currentDate = new Date();
+  //   const last12Months = Array.from({ length: 12 })
+  //     .map((_, index) => {
+  //       const date = new Date();
+  //       date.setMonth(currentDate.getMonth() - index);
+  //       return date.toLocaleString('default', {
+  //         month: 'short',
+  //         year: 'numeric',
+  //       });
+  //     })
+  //     .reverse();
+
+  //   repositories.forEach((repo) => {
+  //     this.githubService
+  //       .fetchListOfCommits(this.userData.login, repo.name)
+  //       .subscribe({
+  //         next: (commits) => {
+  //           commits.forEach((commit: any) => {
+  //             const commitDate = new Date(commit.commit.author.date);
+  //             const monthYear = commitDate.toLocaleString('default', {
+  //               month: 'short',
+  //               year: 'numeric',
+  //             });
+
+  //             if (last12Months.includes(monthYear)) {
+  //               monthlyCommitCounts[monthYear] =
+  //                 (monthlyCommitCounts[monthYear] || 0) + 1;
+  //             }
+  //           });
+
+  //           console.log('Monthly Commit Counts:', monthlyCommitCounts);
+
+  //           this.updateBarChartData(monthlyCommitCounts, last12Months);
+  //         },
+  //         error: (err) => {
+  //           console.error(
+  //             `Error fetching commits for repository ${repo.name}:`,
+  //             err
+  //           );
+  //         },
+  //       });
+  //   });
+  // }
+
+  private aggregateMonthlyCommits(): void {
+    const last12Months = this.getLast12Months();
+    const commitRequests = this.repositories.map((repo) =>
+      this.githubService.fetchListOfCommits(this.userData.login, repo.name)
+    );
+
+    forkJoin(commitRequests).subscribe({
+      next: (commitResponses) => {
+        const monthlyCommitCounts = this.calculateMonthlyCommits(
+          commitResponses,
+          last12Months
+        );
+        this.updateBarChartData(monthlyCommitCounts, last12Months);
+      },
+      error: (err) => {
+        console.error('Error fetching commit data:', err);
+      },
+    });
+  }
+
+  private getLast12Months(): string[] {
     const currentDate = new Date();
-    const last12Months = Array.from({ length: 12 })
-      .map((_, index) => {
-        const date = new Date();
-        date.setMonth(currentDate.getMonth() - index);
-        return date.toLocaleString('default', {
+    return Array.from({ length: 12 }, (_, index) => {
+      const date = new Date();
+      date.setMonth(currentDate.getMonth() - index);
+      return date.toLocaleString('default', {
+        month: 'short',
+        year: 'numeric',
+      });
+    }).reverse();
+  }
+
+  private calculateMonthlyCommits(
+    commitResponses: any[][],
+    last12Months: string[]
+  ): { [key: string]: number } {
+    const monthlyCommitCounts: { [key: string]: number } = {};
+
+    commitResponses.forEach((commits) => {
+      commits.forEach((commit: any) => {
+        const commitDate = new Date(commit.commit.author.date);
+        const monthYear = commitDate.toLocaleString('default', {
           month: 'short',
           year: 'numeric',
         });
-      })
-      .reverse(); // Array of last 12 months in "Month YYYY" format
 
-    repositories.forEach((repo) => {
-      this.githubService
-        .fetchListOfCommits(this.userData.login, repo.name) // Access `userData.login` directly
-        .subscribe({
-          next: (commits) => {
-            commits.forEach((commit: any) => {
-              const commitDate = new Date(commit.commit.author.date);
-              const monthYear = commitDate.toLocaleString('default', {
-                month: 'short',
-                year: 'numeric',
-              });
-
-              if (last12Months.includes(monthYear)) {
-                // Increment commit count for the month
-                monthlyCommitCounts[monthYear] =
-                  (monthlyCommitCounts[monthYear] || 0) + 1;
-              }
-            });
-
-            console.log('Monthly Commit Counts:', monthlyCommitCounts);
-
-            // Update chart data after processing all repositories
-            this.updateBarChartData(monthlyCommitCounts, last12Months);
-          },
-          error: (err) => {
-            console.error(
-              `Error fetching commits for repository ${repo.name}:`,
-              err
-            );
-          },
-        });
+        if (last12Months.includes(monthYear)) {
+          monthlyCommitCounts[monthYear] =
+            (monthlyCommitCounts[monthYear] || 0) + 1;
+        }
+      });
     });
+
+    return monthlyCommitCounts;
   }
 
   // private fetchRepositories() {
@@ -166,46 +231,84 @@ export class DashboardComponent implements OnInit {
   //   });
   // }
 
-  private fetchProgrammingLanguages() {
-    this.githubService.fetchRepositories('ssssyd-ssssyd').subscribe((repos) => {
-      this.repositories = repos;
-      this.countCommits();
-      const languageData: { [key: string]: number } = {};
-      const languageRequests = repos.map((repo) =>
-        this.githubService.fetchProgrammingLanguages(
-          repo.owner.login,
-          repo.name
-        )
-      );
-
-      forkJoin(languageRequests).subscribe({
-        next: (languagesArray) => {
-          languagesArray.forEach((languages) => {
-            Object.entries(languages).forEach(([language, value]) => {
-              languageData[language] =
-                (languageData[language] || 0) + Number(value);
-            });
-          });
-
-          // Update chart data and render the chart
-          this.updatePieChartData(languageData);
-          this.renderPieChart();
-        },
-        error: (err) =>
-          console.error('Error fetching programming languages:', err),
-      });
+  private fetchProgrammingLanguages(): void {
+    this.githubService.fetchRepositories(this.userData.login).subscribe({
+      next: (repos) => {
+        this.repositories = repos;
+        this.aggregateMonthlyCommits();
+        this.fetchLanguagesForRepositories(repos);
+      },
+      error: (err) => console.error('Error fetching repositories:', err),
     });
   }
+
+  private fetchLanguagesForRepositories(repositories: any[]): void {
+    const languageRequests = repositories.map((repo) =>
+      this.githubService.fetchProgrammingLanguages(repo.owner.login, repo.name)
+    );
+
+    forkJoin(languageRequests).subscribe({
+      next: (languagesArray) => {
+        const aggregatedLanguages = this.aggregateLanguageData(languagesArray);
+        this.updatePieChartData(aggregatedLanguages);
+        this.renderPieChart();
+      },
+      error: (err) =>
+        console.error('Error fetching programming languages:', err),
+    });
+  }
+
+  private aggregateLanguageData(
+    languagesArray: Array<{ [key: string]: number }>
+  ): { [key: string]: number } {
+    const languageData: { [key: string]: number } = {};
+
+    languagesArray.forEach((languages) => {
+      Object.entries(languages).forEach(([language, value]) => {
+        languageData[language] = (languageData[language] || 0) + Number(value);
+      });
+    });
+
+    return languageData;
+  }
+
+  // private fetchProgrammingLanguages() {
+  //   this.githubService.fetchRepositories('ssssyd-ssssyd').subscribe((repos) => {
+  //     this.repositories = repos;
+  //     this.aggregateMonthlyCommits();
+  //     const languageData: { [key: string]: number } = {};
+  //     const languageRequests = repos.map((repo) =>
+  //       this.githubService.fetchProgrammingLanguages(
+  //         repo.owner.login,
+  //         repo.name
+  //       )
+  //     );
+
+  //     forkJoin(languageRequests).subscribe({
+  //       next: (languagesArray) => {
+  //         languagesArray.forEach((languages) => {
+  //           Object.entries(languages).forEach(([language, value]) => {
+  //             languageData[language] =
+  //               (languageData[language] || 0) + Number(value);
+  //           });
+  //         });
+
+  //         this.updatePieChartData(languageData);
+  //         this.renderPieChart();
+  //       },
+  //       error: (err) =>
+  //         console.error('Error fetching programming languages:', err),
+  //     });
+  //   });
+  // }
 
   private updateBarChartData(
     monthlyCommitCounts: { [key: string]: number },
     last12Months: string[]
   ): void {
-    // Prepare labels and data arrays
     const labels = last12Months;
     const data = labels.map((monthYear) => monthlyCommitCounts[monthYear] || 0);
 
-    // Update chart data for bar chart
     this.barChartData.set({
       labels,
       datasets: [
@@ -218,7 +321,7 @@ export class DashboardComponent implements OnInit {
       ],
     });
 
-    this.renderBarChart(); // Call the bar chart rendering function
+    this.renderBarChart();
   }
 
   private renderBarChart(): void {
@@ -227,7 +330,7 @@ export class DashboardComponent implements OnInit {
     ) as HTMLCanvasElement;
 
     if (this.barChart) {
-      this.barChart.destroy(); // Destroy the old instance if it exists
+      this.barChart.destroy();
     }
 
     this.barChart = new Chart(barChartCanvas, {
@@ -245,7 +348,7 @@ export class DashboardComponent implements OnInit {
         scales: {
           x: {
             grid: {
-              display: false, // Hides the vertical grid lines
+              display: false,
             },
             title: {
               display: false,
@@ -254,7 +357,7 @@ export class DashboardComponent implements OnInit {
           },
           y: {
             grid: {
-              display: false, // Hides the vertical grid lines
+              display: false,
             },
             title: {
               display: true,
@@ -262,6 +365,9 @@ export class DashboardComponent implements OnInit {
             },
             beginAtZero: true,
           },
+        },
+        layout: {
+          padding: 40,
         },
       },
     });
@@ -273,7 +379,7 @@ export class DashboardComponent implements OnInit {
     ) as HTMLCanvasElement;
 
     if (this.pieChart) {
-      this.pieChart.destroy(); // Destroy the old instance if it exists
+      this.pieChart.destroy();
     }
 
     this.pieChart = new Chart(pieChartCanvas, {
@@ -284,20 +390,57 @@ export class DashboardComponent implements OnInit {
           legend: {
             display: true,
             position: 'bottom',
+            labels: {
+              generateLabels: (chart) => {
+                const data = chart.data;
+
+                if (
+                  !data.labels ||
+                  !data.datasets ||
+                  !data.datasets[0].data ||
+                  !Array.isArray(data.datasets[0].backgroundColor)
+                ) {
+                  return [];
+                }
+
+                const backgroundColor = data.datasets[0]
+                  .backgroundColor as string[];
+
+                const total = (data.datasets[0].data as number[]).reduce(
+                  (sum, value) => sum + (value || 0),
+                  0
+                );
+
+                return data.labels.map((label, index) => {
+                  const value = (data.datasets[0].data[index] || 0) as number;
+                  const percentage = Math.round((value / total) * 100);
+
+                  return {
+                    text: `${label} (${percentage}%)`,
+                    fillStyle: backgroundColor[index],
+                    strokeStyle: backgroundColor[index],
+                    lineWidth: 1,
+                    hidden: false,
+                    index: index,
+                  };
+                });
+              },
+            },
           },
+        },
+        layout: {
+          padding: 20,
         },
       },
     });
   }
 
   private updatePieChartData(languageData: { [key: string]: number }): void {
-    // Calculate total sum of all languages
     const total = Object.values(languageData).reduce(
       (sum, value) => sum + value,
       0
     );
 
-    // Calculate percentages for each language
     this.languagePercentages = Object.fromEntries(
       Object.entries(languageData).map(([language, value]) => [
         language,
@@ -305,38 +448,45 @@ export class DashboardComponent implements OnInit {
       ])
     );
 
-    // Prepare data for the chart
     this.chartData = {
       labels: Object.keys(this.languagePercentages),
       datasets: [
         {
           data: Object.values(this.languagePercentages),
-          backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'], // Add more colors if needed
+          backgroundColor: [
+            '#FF6384',
+            '#36A2EB',
+            '#FFCE56',
+            '#4BC0C0',
+            '#9966FF',
+            '#FF9F40',
+            '#66FF66',
+            '#FF66B2',
+            '#AABBCC',
+            '#DDEEFF',
+            '#112233',
+            '#445566',
+          ],
         },
       ],
     };
   }
 
-  // private renderChart(): void {
-  //   const ctx = document.getElementById(
-  //     'languagePieChart'
-  //   ) as HTMLCanvasElement;
+  private initializeUserData(): void {
+    this.userData = history.state.userData;
+    this.numberOfProjects.set(this.userData.public_repos);
+    this.followers.set(this.userData.followers);
+    this.following.set(this.userData.following);
+  }
 
-  //   if (this.chart) {
-  //     this.chart.destroy();
-  //   }
-
-  //   this.chart = new Chart(ctx, {
-  //     type: 'pie',
-  //     data: this.chartData as ChartData<'pie'>,
-  //     options: {
-  //       plugins: {
-  //         legend: {
-  //           display: true,
-  //           position: 'bottom',
-  //         },
-  //       },
-  //     },
-  //   });
-  // }
+  private startAutoRefresh(): void {
+    this.autoRefreshInterval = setInterval(() => {
+      this.fetchProgrammingLanguages();
+      this.toastService.displayToast(
+        'information',
+        'Data Refreshed',
+        'Dashboard data has been updated.'
+      );
+    }, 15 * 60 * 1000);
+  }
 }

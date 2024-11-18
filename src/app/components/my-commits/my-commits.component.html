@@ -46,7 +46,14 @@
             />
           </div>
           <div class="commit-info">
-            <strong>{{ commit.commit.message }}</strong>
+            <strong
+              (click)="navigateToCommit(commit.html_url)"
+              style="cursor: pointer"
+            >
+              {{ commit.commit.message }}
+            </strong>
+
+            >
             <p>
               {{
                 commit.commit.author.name +
