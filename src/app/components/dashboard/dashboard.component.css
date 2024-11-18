@@ -49,6 +49,8 @@
 
 .bar-chart-container {
   flex: 3;
+  display: flex;
+  flex-direction: column;
   /* Adds spacing between the containers */
   padding: 10px;
   background-color: #f9f9f9; /* Optional: Adds a light background */
@@ -74,6 +76,6 @@
 
 canvas {
   display: block;
-  margin: 0 auto;
+  /* margin: 0 auto; */
   max-width: 100%; /* Ensures the canvas resizes within its container */
 }

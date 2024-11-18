@@ -25,6 +25,7 @@
     "@scania/theme-light": "^4.4.2",
     "chart.js": "^4.4.6",
     "date-fns": "^4.1.0",
+    "playwright": "^1.48.2",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.3"
@@ -33,6 +34,7 @@
     "@angular-devkit/build-angular": "^18.0.6",
     "@angular/cli": "^18.0.6",
     "@angular/compiler-cli": "^18.0.0",
+    "@playwright/test": "^1.48.2",
     "@types/chart.js": "^2.9.41",
     "@types/jasmine": "~5.1.0",
     "@webcomponents/webcomponentsjs": "^2.8.0",

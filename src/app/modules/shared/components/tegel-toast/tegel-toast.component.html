@@ -1,0 +1,11 @@
+@if(toastService.showToast()){
+<tds-toast
+  [variant]="toastService.toastVariant()"
+  [header]="toastService.toastHeader()"
+  [subheader]="toastService.toastSubheader()"
+  closable="true"
+  (tdsClose)="toastService.hideToast()"
+  class="toast-element"
+>
+</tds-toast>
+}

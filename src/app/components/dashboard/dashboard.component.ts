@@ -244,15 +244,21 @@ export class DashboardComponent implements OnInit {
         },
         scales: {
           x: {
+            grid: {
+              display: false, // Hides the vertical grid lines
+            },
             title: {
-              display: true,
-              text: 'Months',
+              display: false,
+              text: 'Number of Commits',
             },
           },
           y: {
+            grid: {
+              display: false, // Hides the vertical grid lines
+            },
             title: {
               display: true,
-              text: 'Number of Commits',
+              text: 'Months',
             },
             beginAtZero: true,
           },
