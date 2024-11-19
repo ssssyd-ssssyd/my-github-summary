@@ -7,7 +7,7 @@ import { Observable, tap } from 'rxjs';
 })
 export class GithubService {
   private apiUrl = 'https://api.github.com';
-  private token: string | null = null;
+
   constructor(private http: HttpClient) {}
 
   authenticateUser(token: string): Observable<any> {
@@ -16,19 +16,23 @@ export class GithubService {
     });
     return this.http.get(`${this.apiUrl}/user`, { headers }).pipe(
       tap(() => {
-        this.token = token;
+        const existingToken = sessionStorage.getItem('githubToken');
+        if (!existingToken) {
+          sessionStorage.setItem('githubToken', token);
+        }
       })
     );
   }
 
   private getHeaders(): HttpHeaders {
-    if (!this.token) {
+    const token = sessionStorage.getItem('githubToken');
+    if (!token) {
       throw new Error(
-        'Authentication token is not set. Please authenticate first.'
+        'Authentication token is not set in session storage. Please authenticate first.'
       );
     }
     return new HttpHeaders({
-      Authorization: `Bearer ${this.token}`,
+      Authorization: `Bearer ${token}`,
     });
   }
 

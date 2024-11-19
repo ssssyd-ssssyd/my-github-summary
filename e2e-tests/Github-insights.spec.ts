@@ -46,6 +46,10 @@ test.describe('Github-insights page tests', () => {
     });
 
     await test.step('Verify bar chart and pie chart are rendering', async () => {
+      await page.waitForResponse(
+        (response) =>
+          response.url().includes('/repos') && response.status() === 200
+      );
       const barChartCanvas = page.locator('canvas#commitBarChart');
       await expect(barChartCanvas).toBeVisible();
 
@@ -67,8 +71,21 @@ test.describe('Github-insights page tests', () => {
       await firstOption.click();
     });
 
-    await test.step(
-      'Click on a commit and validate it navigates to the correct GitHub commit page'
-    );
+    await test.step('Click on first commit and validate it navigates to the correct GitHub commit page', async () => {
+      const commitMessage = page.locator('strong.commit-message').nth(0);
+      const commitText = await commitMessage.textContent();
+      console.log('Commit Message Text:', commitText);
+
+      await commitMessage.click();
+      const [newPage] = await Promise.all([
+        page.context().waitForEvent('page'), // Wait for a new page to open
+        page.locator('strong.commit-message').nth(0).click(), // Perform the click action
+      ]);
+
+      // Wait for the new page to load
+      await newPage.waitForLoadState();
+      const pageContent = await newPage.content();
+      expect(pageContent).toContain(commitText?.trim());
+    });
   });
 });

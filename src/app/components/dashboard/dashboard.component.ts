@@ -86,53 +86,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
   }
 
-  // private aggregateMonthlyCommits(): void {
-  //   const repositories = this.repositories;
-  //   const monthlyCommitCounts: { [key: string]: number } = {};
-  //   const currentDate = new Date();
-  //   const last12Months = Array.from({ length: 12 })
-  //     .map((_, index) => {
-  //       const date = new Date();
-  //       date.setMonth(currentDate.getMonth() - index);
-  //       return date.toLocaleString('default', {
-  //         month: 'short',
-  //         year: 'numeric',
-  //       });
-  //     })
-  //     .reverse();
-
-  //   repositories.forEach((repo) => {
-  //     this.githubService
-  //       .fetchListOfCommits(this.userData.login, repo.name)
-  //       .subscribe({
-  //         next: (commits) => {
-  //           commits.forEach((commit: any) => {
-  //             const commitDate = new Date(commit.commit.author.date);
-  //             const monthYear = commitDate.toLocaleString('default', {
-  //               month: 'short',
-  //               year: 'numeric',
-  //             });
-
-  //             if (last12Months.includes(monthYear)) {
-  //               monthlyCommitCounts[monthYear] =
-  //                 (monthlyCommitCounts[monthYear] || 0) + 1;
-  //             }
-  //           });
-
-  //           console.log('Monthly Commit Counts:', monthlyCommitCounts);
-
-  //           this.updateBarChartData(monthlyCommitCounts, last12Months);
-  //         },
-  //         error: (err) => {
-  //           console.error(
-  //             `Error fetching commits for repository ${repo.name}:`,
-  //             err
-  //           );
-  //         },
-  //       });
-  //   });
-  // }
-
   private aggregateMonthlyCommits(): void {
     const last12Months = this.getLast12Months();
     const commitRequests = this.repositories.map((repo) =>
@@ -189,47 +142,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return monthlyCommitCounts;
   }
 
-  // private fetchRepositories() {
-  //   this.githubService.fetchRepositories('ssssyd-ssssyd').subscribe((repos) => {
-
-  //     repos.map((repo) => {
-  //       this.githubService
-  //         .fetchCommitActivity(repo.owner.login, repo.name)
-  //         .subscribe(console.log);
-  //     });
-  //   });
-  //   // ******
-  //   this.githubService.fetchRepositories('ssssyd-ssssyd').subscribe({
-  //     next: (repos) => {
-  //       this.repositories = repos;
-  //       // Prepare API calls for commit activity for each repository
-  //       const commitRequests = repos.map(
-  //         (repo) =>
-  //           this.githubService
-  //             .fetchCommitActivity(repo.owner.login, repo.name)
-  //             .pipe() // Additional processing can be done here if needed
-  //       );
-  //       // Execute all requests in parallel
-  //       forkJoin(commitRequests).subscribe({
-  //         next: (commitResponses) => {
-  //           this.commitActivity = commitResponses.map((commits, index) => {
-  //             const totalCommits = commits
-  //               ? commits.reduce((sum, week) => sum + week.total, 0)
-  //               : 0;
-  //             return {
-  //               repoName: this.repositories[index].name,
-  //               totalCommits,
-  //             };
-  //           });
-  //           console.log('Commit Activity:', this.commitActivity);
-  //         },
-  //         error: (err) => console.error('Error fetching commit activity:', err),
-  //       });
-  //     },
-  //     error: (err) => console.error('Error fetching repositories:', err),
-  //   });
-  // }
-
   private fetchProgrammingLanguages(): void {
     this.githubService.fetchRepositories(this.userData.login).subscribe({
       next: (repos) => {
@@ -270,36 +182,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     return languageData;
   }
-
-  // private fetchProgrammingLanguages() {
-  //   this.githubService.fetchRepositories('ssssyd-ssssyd').subscribe((repos) => {
-  //     this.repositories = repos;
-  //     this.aggregateMonthlyCommits();
-  //     const languageData: { [key: string]: number } = {};
-  //     const languageRequests = repos.map((repo) =>
-  //       this.githubService.fetchProgrammingLanguages(
-  //         repo.owner.login,
-  //         repo.name
-  //       )
-  //     );
-
-  //     forkJoin(languageRequests).subscribe({
-  //       next: (languagesArray) => {
-  //         languagesArray.forEach((languages) => {
-  //           Object.entries(languages).forEach(([language, value]) => {
-  //             languageData[language] =
-  //               (languageData[language] || 0) + Number(value);
-  //           });
-  //         });
-
-  //         this.updatePieChartData(languageData);
-  //         this.renderPieChart();
-  //       },
-  //       error: (err) =>
-  //         console.error('Error fetching programming languages:', err),
-  //     });
-  //   });
-  // }
 
   private updateBarChartData(
     monthlyCommitCounts: { [key: string]: number },

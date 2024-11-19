@@ -49,11 +49,11 @@
             <strong
               (click)="navigateToCommit(commit.html_url)"
               style="cursor: pointer"
+              class="commit-message"
             >
               {{ commit.commit.message }}
             </strong>
 
-            >
             <p>
               {{
                 commit.commit.author.name +
