@@ -10,6 +10,4 @@ import { TegelToastComponent } from './modules/shared/components/tegel-toast/teg
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
 })
-export class AppComponent {
-  // title = 'GitHub_Insights_Dashboard';
-}
+export class AppComponent {}

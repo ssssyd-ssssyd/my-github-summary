@@ -36,7 +36,8 @@ export class MyCommitsComponent implements OnInit {
   }
 
   public onRepoChange(event: any) {
-    this.fetchCommitsForRepo(event.detail.value);
+    const repoName = event.detail?.value;
+    if (repoName) this.fetchCommitsForRepo(repoName);
   }
 
   public formatRelativeTime(dateString: string): string {
@@ -77,7 +78,6 @@ export class MyCommitsComponent implements OnInit {
           );
           this.commitList.set(commits);
           this.filterCommits(this.commitFilterInput.value || '');
-          console.log(this.commitList());
         },
         error: (err) => console.error('Error fetching commits:', err),
       });
@@ -140,6 +140,5 @@ export class MyCommitsComponent implements OnInit {
     });
 
     this.sortedGroupedCommits.set(this.groupAndSortCommitsByDate(filtered));
-    console.log('Updated Grouped Commits:', this.sortedGroupedCommits());
   }
 }

@@ -74,15 +74,13 @@ test.describe('Github-insights page tests', () => {
     await test.step('Click on first commit and validate it navigates to the correct GitHub commit page', async () => {
       const commitMessage = page.locator('strong.commit-message').nth(0);
       const commitText = await commitMessage.textContent();
-      console.log('Commit Message Text:', commitText);
 
       await commitMessage.click();
       const [newPage] = await Promise.all([
-        page.context().waitForEvent('page'), // Wait for a new page to open
-        page.locator('strong.commit-message').nth(0).click(), // Perform the click action
+        page.context().waitForEvent('page'),
+        page.locator('strong.commit-message').nth(0).click(),
       ]);
 
-      // Wait for the new page to load
       await newPage.waitForLoadState();
       const pageContent = await newPage.content();
       expect(pageContent).toContain(commitText?.trim());

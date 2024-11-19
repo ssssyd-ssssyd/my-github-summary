@@ -45,11 +45,18 @@
   height: 33%;
 }
 
+.chart-header-container {
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 0;
+}
+
 .chart-container {
   display: grid;
   grid-template-columns: 3fr 1fr;
   gap: var(--tds-spacing-element-8);
-  margin-top: var(--tds-spacing-element-24);
   height: 400px;
 }
 
@@ -77,8 +84,6 @@
 
 .bar-chart-container h3,
 .pie-chart-container h3 {
-  text-align: center;
-  font-size: 16px;
   font-weight: bold;
   margin-bottom: 10px;
 }

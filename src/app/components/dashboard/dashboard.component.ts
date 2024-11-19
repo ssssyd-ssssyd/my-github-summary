@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { GithubService } from '../../services/github.service';
 import Chart, { ChartData } from 'chart.js/auto';
-import { forkJoin } from 'rxjs';
+import { forkJoin, take } from 'rxjs';
 import { Router } from '@angular/router';
 import { ToastService } from '../../modules/shared/services/toast.service';
 
@@ -26,6 +26,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private toastService: ToastService
   ) {}
   public numberOfProjects = signal<number>(0);
+  public totalCommitsThisYear = signal<number>(0);
   public followers = signal<number>(0);
   public following = signal<number>(0);
   public chartData: {
@@ -36,7 +37,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
     datasets: [
       {
         data: [],
-        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'],
+        backgroundColor: [
+          '#FF6384',
+          '#36A2EB',
+          '#FFCE56',
+          '#4BC0C0',
+          '#9966FF',
+          '#FF9F40',
+          '#66FF66',
+          '#FF66B2',
+          '#AABBCC',
+          '#DDEEFF',
+          '#112233',
+          '#445566',
+        ],
       },
     ],
   };
@@ -61,7 +75,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   });
 
   public totalLanguages: { [key: string]: number } = {};
-  public languagePercentages: { [key: string]: number } = {};
   private autoRefreshInterval: any;
   private userData: any;
   private barChart: Chart | undefined;
@@ -70,7 +83,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.initializeUserData();
-    this.fetchProgrammingLanguages();
+    this.loadDashboardData();
     this.startAutoRefresh();
   }
 
@@ -87,6 +100,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   private aggregateMonthlyCommits(): void {
+    const currentYear = new Date().getFullYear();
     const last12Months = this.getLast12Months();
     const commitRequests = this.repositories.map((repo) =>
       this.githubService.fetchListOfCommits(this.userData.login, repo.name)
@@ -98,6 +112,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
           commitResponses,
           last12Months
         );
+
+        const totalCommitsThisYear = Object.entries(monthlyCommitCounts).reduce(
+          (total, [monthYear, count]) => {
+            const year = parseInt(monthYear.split(' ')[1], 10);
+            return year === currentYear ? total + count : total;
+          },
+          0
+        );
+
+        this.totalCommitsThisYear.set(totalCommitsThisYear);
         this.updateBarChartData(monthlyCommitCounts, last12Months);
       },
       error: (err) => {
@@ -142,18 +166,21 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return monthlyCommitCounts;
   }
 
-  private fetchProgrammingLanguages(): void {
-    this.githubService.fetchRepositories(this.userData.login).subscribe({
-      next: (repos) => {
-        this.repositories = repos;
-        this.aggregateMonthlyCommits();
-        this.fetchLanguagesForRepositories(repos);
-      },
-      error: (err) => console.error('Error fetching repositories:', err),
-    });
+  private loadDashboardData(): void {
+    this.githubService
+      .fetchRepositories(this.userData.login)
+      .pipe(take(1))
+      .subscribe({
+        next: (repos) => {
+          this.repositories = repos;
+          this.aggregateMonthlyCommits();
+          this.fetchProgrammingLanguages(repos);
+        },
+        error: (err) => console.error('Error fetching repositories:', err),
+      });
   }
 
-  private fetchLanguagesForRepositories(repositories: any[]): void {
+  private fetchProgrammingLanguages(repositories: any[]): void {
     const languageRequests = repositories.map((repo) =>
       this.githubService.fetchProgrammingLanguages(repo.owner.login, repo.name)
     );
@@ -196,7 +223,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         {
           label: 'Commits',
           data,
-          backgroundColor: '#36A2EB',
+          backgroundColor: this.chartData.datasets[0].backgroundColor[1],
           borderWidth: 1,
         },
       ],
@@ -322,32 +349,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
       0
     );
 
-    this.languagePercentages = Object.fromEntries(
-      Object.entries(languageData).map(([language, value]) => [
-        language,
-        Number(((value / total) * 100).toFixed(2)),
-      ])
+    const percentages = Object.entries(languageData).reduce(
+      (acc, [language, count]) => {
+        acc[language] = Number(((count / total) * 100).toFixed(2));
+        return acc;
+      },
+      {} as Record<string, number>
     );
 
     this.chartData = {
-      labels: Object.keys(this.languagePercentages),
+      labels: Object.keys(percentages),
       datasets: [
         {
-          data: Object.values(this.languagePercentages),
-          backgroundColor: [
-            '#FF6384',
-            '#36A2EB',
-            '#FFCE56',
-            '#4BC0C0',
-            '#9966FF',
-            '#FF9F40',
-            '#66FF66',
-            '#FF66B2',
-            '#AABBCC',
-            '#DDEEFF',
-            '#112233',
-            '#445566',
-          ],
+          data: Object.values(percentages),
+          backgroundColor: this.chartData.datasets[0].backgroundColor,
         },
       ],
     };
@@ -355,14 +370,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   private initializeUserData(): void {
     this.userData = history.state.userData;
-    this.numberOfProjects.set(this.userData.public_repos);
-    this.followers.set(this.userData.followers);
-    this.following.set(this.userData.following);
+    if (this.userData) {
+      this.numberOfProjects.set(this.userData.public_repos);
+      this.followers.set(this.userData.followers);
+      this.following.set(this.userData.following);
+    }
   }
 
   private startAutoRefresh(): void {
     this.autoRefreshInterval = setInterval(() => {
-      this.fetchProgrammingLanguages();
+      this.loadDashboardData();
       this.toastService.displayToast(
         'information',
         'Data Refreshed',

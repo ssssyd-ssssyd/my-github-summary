@@ -1,5 +1,4 @@
 <div class="dashboard-container">
-  <!-- <h1 class="my-github-header">My github summary</h1> -->
   <h1 class="my-github-header">
     <span>MY GITHUB</span>
     <span>SUMMARY</span>
@@ -48,7 +47,7 @@
     </tds-block>
     <tds-block class="summary-card">
       <div>Total commits this year</div>
-      <h1>21,212</h1>
+      <h1>{{ totalCommitsThisYear() }}</h1>
     </tds-block>
     <tds-block class="summary-card">
       <div>Followers</div>
@@ -59,14 +58,23 @@
       <h1>{{ following() }}</h1>
     </tds-block>
   </div>
+
+  <div class="chart-header-container">
+    <h3>
+      Commit count <tds-icon slot="icon" size="20px" name="redirect"></tds-icon>
+    </h3>
+
+    <h3>
+      Programming languages
+      <tds-icon slot="icon" size="20px" name="redirect"></tds-icon>
+    </h3>
+  </div>
   <div class="chart-container">
     <div class="bar-chart-container">
-      <h3>Commit count</h3>
       <canvas id="commitBarChart"></canvas>
     </div>
 
     <div class="pie-chart-container">
-      <h3>Programming languages</h3>
       <canvas id="languagePieChart"></canvas>
     </div>
   </div>

@@ -48,20 +48,28 @@ export class AuthenticationComponent {
       .pipe(take(1))
       .subscribe({
         next: (data: any) => {
-          this.userName.set(data.name);
-          this.showToast(
-            'success',
-            'Success',
-            `Logged in successfully as ${data.name}`
-          );
-          this.navigateToDashboard(data);
-          this.resetForm();
+          this.handleSuccessfulAuthentication(data);
         },
         error: (err) => {
           console.error('Error:', err);
-          this.showToast('error', 'Error', 'There was an error logging in');
+          this.showToast(
+            'error',
+            'Error',
+            'Authentication failed. Please check your token.'
+          );
         },
       });
+  }
+
+  private handleSuccessfulAuthentication(data: any): void {
+    this.userName.set(data.name);
+    this.showToast(
+      'success',
+      'Authentication Successful',
+      `Welcome, ${data.name}!`
+    );
+    this.navigateToDashboard(data);
+    this.resetForm();
   }
 
   private showToast(type: any, title: string, message: string): void {
@@ -75,7 +83,7 @@ export class AuthenticationComponent {
   }
 
   private resetForm(): void {
-    this.accessTokenInput.setValue('');
+    this.accessTokenInput.reset();
     this.formSubmitted.set(false);
   }
 
