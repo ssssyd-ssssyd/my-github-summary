@@ -10,7 +10,6 @@ import Chart, { ChartData } from 'chart.js/auto';
 import { forkJoin } from 'rxjs';
 import { Router } from '@angular/router';
 import { ToastService } from '../../modules/shared/services/toast.service';
-import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 @Component({
   selector: 'app-dashboard',
